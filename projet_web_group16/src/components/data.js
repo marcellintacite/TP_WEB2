@@ -24,9 +24,9 @@ const categorie = [
   },
   {
     id: 2,
-    nom: "Dejeuner",
+    nom: "Lunch",
     description: "Les meuilleurs repas du midi dans votre resto préféré!",
-    lien: "/categorie/dejeuner",
+    lien: "/categorie/lunch",
     img: bg2,
   },
   {
@@ -34,7 +34,7 @@ const categorie = [
     nom: "Souper",
     description:
       "Retouvez les plats du soir chez nous avec d'autres avantages.",
-    lien: "/categorie/breakfast",
+    lien: "/categorie/super",
     img: bg3,
   },
   {

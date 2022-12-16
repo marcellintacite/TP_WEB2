@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h3>Salut les amis</h3>
+    <h3>Nos plats disponible :</h3>
     <template>
       <div class="cards">
         <v-card
           :loading="loading"
-          class="mx-auto my-12"
-          max-width="380"
+          class="mx-auto my-12 cc"
+          max-width="370px"
           v-for="cat in produits"
           :key="cat.id"
         >
@@ -18,14 +18,14 @@
             ></v-progress-linear>
           </template>
 
-          <v-img height="200px" :src="cat.img"></v-img>
+          <v-img height="200px" :src="images[cat.imageProduit]"></v-img>
 
-          <v-card-title>{{ cat.nom }}</v-card-title>
+          <v-card-title>{{ cat.nomProduit }}</v-card-title>
 
           <v-card-text>
             <v-row align="center" class="mx-0">
               <v-rating
-                :value="4.5"
+                :value="cat.NombreEtoile"
                 color="amber"
                 dense
                 half-increments
@@ -33,33 +33,17 @@
                 size="14"
               ></v-rating>
 
-              <div class="grey--text ms-4">{{ cat.NombreEtoiles }}</div>
+              <div class="grey--text ms-4">{{ cat.NombreEtoile }}</div>
             </v-row>
 
             <div class="my-4 text-subtitle-1">
-              $ {{ cat.prixPorduit }} ou {{ cat.prixPorduit * 2000 }} FC
+              $ {{ cat.prixProduit }} ou {{ cat.prixProduit * 2000 }} FC
             </div>
 
-            <div>{{ cat.description }}</div>
+            <div>{{ cat.descriptionProduit }}</div>
           </v-card-text>
 
           <v-divider class="mx-4"></v-divider>
-
-          <v-card-text>
-            <v-chip-group
-              v-model="selection"
-              active-class="deep-purple accent-4 white--text"
-              column
-            >
-              <v-chip>5:30PM</v-chip>
-
-              <v-chip>7:30PM</v-chip>
-
-              <v-chip>8:00PM</v-chip>
-
-              <v-chip>9:00PM</v-chip>
-            </v-chip-group>
-          </v-card-text>
 
           <v-card-actions>
             <v-btn color="deep-purple lighten-2" text>
@@ -70,10 +54,7 @@
                     max-width="600"
                   >
                     <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        color="deep-purple lighten-2"
-                        v-bind="attrs"
-                        v-on="on"
+                      <v-btn v-bind="attrs" v-on="on" color="#febe8c"
                         >Commander</v-btn
                       >
                     </template>
@@ -87,13 +68,13 @@
                             Formulaire de commande
 
                             <p style="color: #334; font-size: 14px">
-                              {{ cat.prixPorduit * quatite }}$ soit
-                              {{ cat.prixPorduit * quatite * 2000 }} FC
+                              {{ cat.prixProduit * quatite }}$ soit
+                              {{ cat.prixProduit * quatite * 2000 }} FC
                             </p>
                           </div>
                         </v-card-text>
                         <div style="width: 80%; margin: auto" class="p-10">
-                          <v-form @submit="onSubmit">
+                          <v-form @submit="(e) => onSubmit(e, cat.id)">
                             <v-text-field
                               label="Votre nom :"
                               placeholder="placide"
@@ -209,25 +190,37 @@
         </v-card>
       </div>
     </template>
-    <div>{{ $route.params.id != 2 && "salut" }}</div>
   </div>
 </template>
 
 <script>
 import Vue from "vue";
-import { getProduits } from "./data";
 import axios from "axios";
+import { images } from "./images";
 
 const items = ["Airtel money", "Orange money", "M-pesa", "Presentiel"];
 export default {
+  mounted() {
+    axios
+      .get("http://localhost:5000/produits")
+      .then((res) => {
+        let ndata = res.data.filter(
+          (p) => p.Idcategorie == window.location.href.split("/").at(5)
+        );
+
+        this.produits = ndata;
+      })
+      .catch((e) => alert(e.message));
+  },
   data() {
     return {
-      produits: getProduits(window.location.href.split("/").at(5)),
+      produits: [],
       items: items,
+      images: images,
       showLoading: false,
       nom: "",
       adresse: "",
-      quatite: "",
+      quatite: 1,
       moyenPaiement: "",
       numeroTelephone: "",
     };
@@ -236,10 +229,11 @@ export default {
     userPage() {
       return this.$route.params.id;
     },
-    onSubmit(e) {
+    onSubmit(e, id) {
       e.preventDefault();
 
       const data = {
+        idProduit: id,
         nom: this.nom,
         adresse: this.adresse,
         quantite: parseInt(this.quatite),
@@ -259,7 +253,7 @@ export default {
               });
               this.showLoading = false;
               setTimeout(() => {
-                window.location.replace(`/}`);
+                window.location.replace(`/`);
               }, 2000);
             }, 3000);
             console.log(res);
@@ -298,3 +292,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.cc {
+  background-color: red;
+}
+</style>
