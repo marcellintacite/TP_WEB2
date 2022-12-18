@@ -20,7 +20,7 @@
       </div>
     </v-row>
 
-    <div class="table_product">
+    <div class="table_product" id="table_product">
       <template v-if="!loading">
         <v-data-table
           :headers="headers"

@@ -59,33 +59,46 @@
       </div>
     </div>
     <div class="tableau">
-      <h3 class="text-center">Commandes recentes</h3>
-      <v-simple-table>
-        <template v-slot:default>
-          <thead>
-            <tr>
-              <th class="text-left">id</th>
-              <th class="text-left">Nom utilisateur</th>
-              <th class="text-left">Adresse</th>
-              <th class="text-left">MoyenPaiement</th>
-              <th class="text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in desserts" :key="item.name">
-              <td>{{ item.name }}</td>
-              <td>{{ item.calories }}</td>
-            </tr>
-          </tbody>
-        </template>
-      </v-simple-table>
+      <div id="etat_commande">
+        <h3 class="text-center">Commandes recentes</h3>
+        <v-simple-table v-if="show">
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left">Date</th>
+                <th class="text-left">Nom utilisateur</th>
+                <th class="text-left">Adresse</th>
+                <th class="text-left">MoyenPaiement</th>
+                <th class="text-left">Numero téléphone</th>
+                <th class="text-left">Id Produit</th>
+                <th class="text-left">Quantité</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in commandes" :key="item.name">
+                <td>{{ item.temps }}</td>
+                <td>{{ item.nom }}</td>
+                <td>{{ item.adresse }}</td>
+                <td>{{ item.moyenPaiement }}</td>
+                <td>{{ item.numeroTelephone }}</td>
+                <td>{{ item.idProduit }}</td>
+                <td>{{ item.quantite }}</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
+      </div>
+
+      <v-btn style="margin-top: 20px" color="accent" @click="printFunc()"
+        >Télécharger <v-icon>mdi-download</v-icon></v-btn
+      >
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-
+import html2pdf from "html2pdf.js";
 export default {
   data() {
     return {
@@ -93,6 +106,8 @@ export default {
       nombreCommandes: null,
       nombreUtilisateur: null,
       nombreProduits: null,
+      commandes: null,
+      show: false,
     };
   },
   methods: {
@@ -102,12 +117,24 @@ export default {
     navRoot(root) {
       this.$router.replace(`/${root}`);
     },
+    printFunc() {
+      html2pdf(document.getElementById("etat_commande"), { margin: 1 });
+      console.log("salut");
+    },
   },
   mounted() {
     axios
       .get("http://localhost:5000/users")
       .then((res) => {
         this.nombreUtilisateur = res.data.length;
+      })
+      .catch((e) => alert(e.message));
+
+    axios
+      .get("http://localhost:5000/commandes")
+      .then((res) => {
+        this.commandes = res.data;
+        this.show = true;
       })
       .catch((e) => alert(e.message));
 
@@ -170,7 +197,12 @@ export default {
 }
 
 .tableau {
-  margin-top: 25px;
+  margin-top: 30px;
+  width: 100%;
+  background-color: #09203f;
+  padding: 10px;
+  border-radius: 5px;
+  color: #fff;
 }
 
 @media (max-width: 500px) {
